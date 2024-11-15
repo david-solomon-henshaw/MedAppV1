@@ -73,9 +73,11 @@ const Appointments = () => {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
+      console.log('fetch the appointments using the admin controller not appointments!!!!');
+      
       try {
         const [appointmentsResponse, caregiversResponse] = await Promise.all([
-          axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/appointments/all`),
+          axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/admin/appointments/all`),
           axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/admin/caregivers`)
         ]);
         setAppointments(appointmentsResponse.data.appointments);

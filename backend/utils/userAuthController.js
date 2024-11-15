@@ -5,11 +5,13 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const generateOtp = require('./generateOtp');
 const transporter = require('../config/nodemailerConfig');
+const ActionLog = require('../models/action');  // Assuming ActionLog model is correctly defined
+
 
 // Unified login function
 exports.loginUser = async (req, res) => {
+  console.log('login ran')
   const { email, password } = req.body;
-  console.log(req.body)
   
 
   try {
@@ -32,14 +34,38 @@ exports.loginUser = async (req, res) => {
     if (!user) {
       user = await Caregiver.findOne({ email });
       role = 'caregiver';
-    console.log(user, "user after caregiver checks in database")
 
     }
 
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    if (!user) {
+      // Log failed login attempt for non-existing user
+      await ActionLog.create({
+        userId: null,  // No valid user found, userId will be null for failed logins
+        userRole: 'error',
+        action: 'login',
+        description: 'User not found',
+        entity: 'error',
+        entityId: null,
+        status: 'failed',
+      });
+      return res.status(404).json({ message: 'User not found' });
+    }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) return res.status(401).json({ message: 'Invalid credentials' });
+  
+    if (!isPasswordValid) {
+      // Log failed login attempt for invalid password
+      await ActionLog.create({
+        userId: user._id,
+        userRole: user.role,
+        action: 'login',
+        description: 'Invalid password',
+        entity: user.role,
+        entityId: user._id,
+        status: 'failed',
+      });
+      return res.status(400).json({ message: 'Invalid credentials' });
+    }
 
     const otp = generateOtp();
     user.otp = otp;
@@ -72,38 +98,109 @@ exports.loginUser = async (req, res) => {
       html: htmlContent,
     });
 
+      // Log successful login
+  await ActionLog.create({
+    userId: user._id,
+    userRole: user.role,
+    action: 'login',
+    description: 'User logged in successfully',
+    entity: user.role,
+    entityId: user._id,
+    status: 'success',
+  });
+
     res.status(200).json({ message: 'OTP sent to email', role });
 
   } catch (error) {
     console.log(error)
+    
+    // Log the error action in ActionLog
+    await ActionLog.create({
+      userId: null,  // No user context available as it's an error
+      userRole: 'error',  // Role is 'error' for system-level failures
+      action: 'login',
+      description: 'Error logging in: ' + error.message,  // Log the error message
+      entity: 'error',  // The entity will be 'error' in case of system issues
+      entityId: null,  // No entity ID in case of error
+      errorDetails: error.stack,  // Stack trace for debugging
+      status: 'failed',
+    });y
     res.status(500).json({ message: 'Error logging in', error });
   } 
 };
  
 // OTP Verification
 exports.verifyOtp = async (req, res) => {
+  console.log('verify ran..')
   const { email, otp } = req.body;
 
   // Check which type of user and validate OTP
   let user = await Admin.findOne({ email }) || await Patient.findOne({ email }) || await Caregiver.findOne({email});
 
-  if (!user) return res.status(404).json({ message: 'User not found' });
+  if (!user) {
+    // Log failed OTP verification attempt for non-existing user
+    await ActionLog.create({
+      userId: null,  // No valid user found, userId will be null for failed logins
+      userRole: 'error',
+      action: 'verify_otp',
+      description: 'User not found',
+      entity: 'error',
+      entityId: null,
+      status: 'failed',
+    });
+    return res.status(404).json({ message: 'User not found' });
+  }
 
   if (!user.otp || !user.otpExpiresAt) {
+    // Log failed OTP verification attempt when no OTP request found
+    await ActionLog.create({
+      userId: user._id,  // Valid user ID
+      userRole: user.role,
+      action: 'verify_otp',
+      description: 'No OTP request found',
+      entity: user.role,  // User's role
+      entityId: user._id,  // User's ID
+      status: 'failed',
+    });
     return res.status(400).json({ message: 'No OTP request found. Please request a new OTP.' });
   }
+
 
   const isOtpExpired = Date.now() > user.otpExpiresAt;
   const isOtpValid = user.otp === otp;
 
   if (!isOtpValid || isOtpExpired) {
+    // Log failed OTP verification attempt when OTP is invalid or expired
+    await ActionLog.create({
+      userId: user._id,  // Valid user ID
+      userRole: user.role,
+      action: 'verify_otp',
+      description: isOtpExpired ? 'OTP has expired' : 'Invalid OTP',
+      entity: user.role,  // User's role
+      entityId: user._id,  // User's ID
+      status: 'failed',
+    });
     return res.status(400).json({ message: isOtpExpired ? 'OTP has expired' : 'Invalid OTP' });
   }
+
 
   const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
   user.otp = undefined; // Clear OTP
   user.otpExpiresAt = undefined; // Clear expiry
   await user.save();
+
+
+   // Log successful OTP verification
+   await ActionLog.create({
+    userId: user._id,  // Valid user ID
+    userRole: user.role,
+    action: 'verify_otp',
+    description: 'OTP verified successfully',
+    entity: user.role,  // User's role
+    entityId: user._id,  // User's ID
+    status: 'success',
+  });
+
 
   res.status(200).json({ message: 'OTP verified successfully', token });
 };

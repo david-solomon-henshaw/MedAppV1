@@ -1,6 +1,7 @@
 const express = require('express');
 const { registerAdmin } = require('../controllers/adminAuthController');
 const adminController = require('../controllers/adminAuthController'); // Import the updated admin controller
+
 const router = express.Router();
 
 // Admin Registration Route
@@ -14,6 +15,8 @@ router.delete('/caregivers/:id', adminController.deleteCaregiver); // Delete a c
 
 // Admin Routes for Appointments
 router.put('/appointments/:appointmentId', adminController.updateAppointment); // Update an appointment
+router.get('/appointments/all', adminController.getAllAppointments); // Update an appointment
+
 router.put('/appointments/cancle/:appointmentId', adminController.cancelAppointment); // Update an appointment
 
 

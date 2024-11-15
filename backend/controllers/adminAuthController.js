@@ -31,6 +31,7 @@ exports.registerAdmin = async (req, res) => {
 
 
 
+
 // Helper function to format time to 12-hour AM/PM format
 const formatTime = (timeString) => {
   const date = new Date(timeString);
@@ -42,6 +43,20 @@ const formatTime = (timeString) => {
   minutes = minutes < 10 ? '0' + minutes : minutes;
   const strTime = hours + ':' + minutes + ' ' + ampm;
   return strTime;
+};
+
+
+
+exports.getAllAppointments = async (req, res) => {
+  try {
+    const appointments = await Appointment.find()
+      .populate('caregiver', 'firstName lastName')
+      .populate('patient', 'firstName lastName');
+    res.status(200).json({ appointments });
+  } catch (error) {
+    console.error('Error fetching appointments:', error);
+    res.status(500).json({ message: 'Error fetching appointments. Please try again later.' });
+  }
 };
 
 exports.updateAppointment = async (req, res) => {
@@ -417,8 +432,6 @@ exports.deleteCaregiver = async (req, res) => {
 };
 
 
-
-
 // Helper function to calculate age from date of birth
 const calculateAge = (dateOfBirth) => {
   const today = new Date();
@@ -647,3 +660,5 @@ exports.getPatientAnalytics = async (req, res) => {
     res.status(500).json({ message: 'Error fetching patient analytics', error: error.message });
   }
 };
+
+

@@ -2,36 +2,6 @@ const Appointment = require('../models/appointment');
 const Patient = require('../models/patient');
 const Caregiver = require('../models/caregiver');
 
-// Book a new appointment
-// exports.bookAppointment = async (req, res) => {
-//   try {
-//     const { patientId, appointmentDate, department, appointmentTime, notes } = req.body;
-
-//     // Check if patient exists
-//     const patient = await Patient.findById(patientId);
-//     if (!patient) return res.status(404).json({ message: 'Patient not found' });
-
-//     const appointment = new Appointment({
-//       patient: patientId,
-//       appointmentDate,
-//       department,
-//       appointmentTime,
-//       notes,
-//     });
-
-//     await appointment.save();
-
-//     // Add the appointment to the patient's appointments array
-//     patient.appointments.push(appointment._id);
-//     await patient.save();
-
-//     res.status(201).json({ message: 'Appointment booked successfully', appointment });
-//   } catch (error) {
-//     res.status(500).json({ message: 'Error booking appointment', error });
-//   }
-// };
-
-
 
 exports.getAllAppointments = async (req, res) => {
   try {

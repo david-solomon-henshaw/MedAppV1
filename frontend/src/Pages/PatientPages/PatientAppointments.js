@@ -15,6 +15,7 @@ const Appointments = () => {
     const fetchAppointments = async () => {
       setLoading(true);
       setError(null);
+      console.log('update the local host to use process.env!!!!! important')
       try {
         const response = await axios.get(`http://localhost:2000/api/appointments/patient/${patientId}`);
         setAppointments(response.data);
