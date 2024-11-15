@@ -3,12 +3,13 @@ const Patient = require('../models/patient');
 const Caregiver = require('../models/caregiver')
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const generateOtp = require('../utils/generateOtp');
+const generateOtp = require('./generateOtp');
 const transporter = require('../config/nodemailerConfig');
 
 // Unified login function
 exports.loginUser = async (req, res) => {
   const { email, password } = req.body;
+  console.log(req.body)
   
 
   try {
@@ -74,10 +75,11 @@ exports.loginUser = async (req, res) => {
     res.status(200).json({ message: 'OTP sent to email', role });
 
   } catch (error) {
+    console.log(error)
     res.status(500).json({ message: 'Error logging in', error });
-  }
+  } 
 };
-
+ 
 // OTP Verification
 exports.verifyOtp = async (req, res) => {
   const { email, otp } = req.body;

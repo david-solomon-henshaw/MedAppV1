@@ -11,7 +11,7 @@ const CaregiverAnalytics = () => {
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        const response = await axios.get('http://localhost:2000/api/admin/caregivers/analytics');
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/admin/caregivers/analytics`);
         setAnalytics(response.data);
         setLoading(false);
       } catch (err) {

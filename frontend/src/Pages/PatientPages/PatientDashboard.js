@@ -9,6 +9,7 @@ import {
   AiOutlineHeart,
   AiOutlineBell
 } from 'react-icons/ai';
+import Header from '../../Components/Header';
 
 const PatientDashboard = () => {
   const [sidebarVisible, setSidebarVisible] = useState(true);
@@ -35,10 +36,10 @@ const PatientDashboard = () => {
         >
           {/* Top Section with Logo */}
           <div className="d-flex flex-column h-100">
-            <div className="p-3 border-bottom d-flex align-items-center justify-content-center">
-              <AiOutlineHeart style={{ color: activeColor }} size={24} />
-              <span className="ms-2 fw-bold" style={{ color: activeColor }}>JKL Healthcare Services</span>
+          <div className="border-bottom d-flex align-items-center justify-content-center">
+            <Header />
             </div>
+
 
             {/* Navigation Links - Spaced Out Vertically */}
             <div className="flex-grow-1 d-flex flex-column align-items-start ps-3">

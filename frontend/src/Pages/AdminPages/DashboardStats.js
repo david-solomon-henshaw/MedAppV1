@@ -11,7 +11,7 @@ const DashboardStats = () => {
   useEffect(() => {
     const fetchDashboardStats = async () => {
       try {
-        const response = await axios.get('http://localhost:2000/api/admin/dashboard/stats');
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/admin/dashboard/stats`);
         setStats(response.data);
         setLoading(false);
       } catch (err) {

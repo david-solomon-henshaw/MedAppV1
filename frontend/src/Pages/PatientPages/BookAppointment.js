@@ -33,7 +33,7 @@ const BookAppointment = () => {
 
     try {
       // Send appointment data to the backend (with corrected fields)
-      const response = await axios.post('http://localhost:2000/api/patient/appointments', {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/patient/appointments`, {
         patientId, // Include patient ID
         patientRequestedDate: appointmentData.appointmentDate, // Adjusted to match model
         patientRequestedTime: appointmentData.appointmentTime, // Adjusted to match model

@@ -11,7 +11,7 @@ import {
   AiOutlineBell,
   AiOutlineUser as UserIcon
 } from 'react-icons/ai';
-
+import Header from '../../Components/Header'
 const AdminDashboard = () => {
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const location = useLocation();
@@ -37,9 +37,8 @@ const AdminDashboard = () => {
         >
           {/* Top Section with Logo */}
           <div className="d-flex flex-column h-100">
-            <div className="p-3 border-bottom d-flex align-items-center justify-content-center">
-              <AiOutlineHeart style={{ color: activeColor }} size={24} />
-              <span className="ms-2 fw-bold" style={{ color: activeColor }}>JKL Healthcare Services</span>
+          <div className="border-bottom d-flex align-items-center justify-content-center">
+            <Header />
             </div>
 
             {/* Navigation Links - Centered Vertically */}

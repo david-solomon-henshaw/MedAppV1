@@ -23,7 +23,7 @@ const SignUp = () => {
 
     try {
       // Replace with your actual API URL
-      const response = await fetch('http://localhost:2000/api/patient/register', {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/patient/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

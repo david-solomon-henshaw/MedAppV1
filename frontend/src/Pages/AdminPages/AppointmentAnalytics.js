@@ -32,7 +32,7 @@ const AppointmentAnalytics = () => {
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        const response = await axios.get('http://localhost:2000/api/admin/appointments/analytics');
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/admin/appointments/analytics`);
         setAnalytics(response.data);
         setLoading(false);
       } catch (err) {

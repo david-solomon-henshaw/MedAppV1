@@ -75,8 +75,8 @@ const Appointments = () => {
       setLoading(true);
       try {
         const [appointmentsResponse, caregiversResponse] = await Promise.all([
-          axios.get('http://localhost:2000/api/appointments/all'),
-          axios.get('http://localhost:2000/api/admin/caregivers')
+          axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/appointments/all`),
+          axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/admin/caregivers`)
         ]);
         setAppointments(appointmentsResponse.data.appointments);
         setCaregivers(caregiversResponse.data);
@@ -243,9 +243,8 @@ const Appointments = () => {
       borderCollapse: 'collapse',
       borderSpacing: 0,
       width: '100%',
-      tableLayout: 'fixed',  // Forces columns to have fixed widths
-    }
-    ,
+      tableLayout: 'fixed',
+    },
     th: {
       padding: '12px 16px',
       backgroundColor: '#f8f9fa',
@@ -253,20 +252,22 @@ const Appointments = () => {
       textAlign: 'center',
       borderBottom: '1px solid rgba(230, 232, 236, 0.8)',
       borderRight: '1px solid rgba(230, 232, 236, 0.8)',
-      minWidth: '100px'  // Adjust as needed for dropdown width
-    }
-    ,
+      whiteSpace: 'nowrap', // Prevent text wrapping
+      fontWeight: '600',    // Make headers more prominent
+      minWidth: '140px',    // Ensure minimum width for content
+    },
     td: {
       padding: '12px 16px',
       textAlign: 'center',
       borderBottom: '1px solid rgba(230, 232, 236, 0.8)',
       borderRight: '1px solid rgba(230, 232, 236, 0.8)',
+      fontWeight: '500',    // Make text slightly bolder
+      color: '#374151',     // Darker text color for better visibility
     },
     lastColumn: {
       borderRight: 'none',
     },
   };
-
   return (
     <div className="p-4">
       <h2 className="text-center h4 mb-4">All Appointments</h2>
@@ -290,7 +291,7 @@ const Appointments = () => {
         {['pending', 'approved', 'in-progress', 'completed', 'canceled'].map((status) => (
           <Tab eventKey={status} title={status.charAt(0).toUpperCase() + status.slice(1)} key={status}>
             {statusGroups[status]?.length > 0 ? (
-              <div className="card rounded-3" style={tableStyles.card}>
+              <div className="card rounded-3" style={tableStyles.container}>
                 <div className="table-responsive">
                   <table className="table table-hover mb-0" style={tableStyles.table}>
                     <thead>
@@ -310,15 +311,19 @@ const Appointments = () => {
                     <tbody>
                       {appointments.filter(app => app.status === status).map((appointment) => (
                         <tr key={appointment._id}>
-                          <td>{appointment.patient?.firstName} {appointment.patient?.lastName}</td>
-                          <td>{new Date(appointment.patientRequestedDate).toLocaleDateString()}</td> {/* Requested Date */}
-                          <td>{formatTime(appointment.patientRequestedTime)}</td> {/* Requested Time */}
-                          <td>{appointment.appointmentDate ? new Date(appointment.appointmentDate).toLocaleDateString() : 'Not Set'}</td> {/* Appointment Date */}
-                          <td>{appointment.department}</td> {/* Department */}
-                          <td>{appointment.caregiver ? `${appointment.caregiver.firstName} ${appointment.caregiver.lastName}` : 'Not Assigned'}</td> {/* Assigned Caregiver */}
-                          <td><span className={`badge ${getStatusBadge(appointment.status)}`}>{appointment.status}</span></td> {/* Status */}
+                          <td style={tableStyles.td}>{appointment.patient?.firstName} {appointment.patient?.lastName}</td>
+                          <td style={tableStyles.td}>{new Date(appointment.patientRequestedDate).toLocaleDateString()}</td>
+                          <td style={tableStyles.td}>{formatTime(appointment.patientRequestedTime)}</td>
+                          <td style={tableStyles.td}>{appointment.appointmentDate ? new Date(appointment.appointmentDate).toLocaleDateString() : 'Not Set'}</td>
+                          <td style={tableStyles.td}>{appointment.department}</td>
+                          <td style={tableStyles.td}>{appointment.caregiver ? `${appointment.caregiver.firstName} ${appointment.caregiver.lastName}` : 'Not Assigned'}</td>
+                          <td style={tableStyles.td}>
+                            <span className={`badge ${getStatusBadge(appointment.status)}`}>
+                              {appointment.status}
+                            </span>
+                          </td>
                           {status === 'pending' && (
-                            <td>
+                            <td style={{ ...tableStyles.td, ...tableStyles.lastColumn }}>
                               <OverlayTrigger trigger="click" placement="left" overlay={actionsPopover(appointment._id)} rootClose>
                                 <Button variant="link" style={{ zIndex: 1040 }}>
                                   <FaUserEdit />
@@ -329,7 +334,6 @@ const Appointments = () => {
                         </tr>
                       ))}
                     </tbody>
-
                   </table>
                 </div>
               </div>
